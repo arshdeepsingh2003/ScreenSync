@@ -1,12 +1,9 @@
 # Environment variables (contains credentials)
 .env
-.env.local
-.env.*.local
-backend/.env
-frontend/.env
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
 
 # Python
 venv/
@@ -61,6 +58,11 @@ frontend/node_modules/
 # Production build outputs
 frontend/dist/
 frontend/build/
+
+# Frontend caches & dev tooling
+.eslintcache
+.vite/
+**/.vite/
 
 # IDEs/Editors
 .vscode/
