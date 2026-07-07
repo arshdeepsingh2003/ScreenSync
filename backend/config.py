@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     JWT_SECRET: str = Field("supersecretjwtkeychangeinproduction12345", validation_alias="JWT_SECRET")
     JWT_EXPIRE_MINUTES: int = Field(60, validation_alias="JWT_EXPIRE_MINUTES")
     CORS_ORIGINS: str = Field("http://localhost:5173,http://127.0.0.1:5173", validation_alias="CORS_ORIGINS")
+    ADMIN_USERNAME: str = Field("admin", validation_alias="ADMIN_USERNAME")
+    ADMIN_PASSWORD: str = Field("adminpassword", validation_alias="ADMIN_PASSWORD")
 
     @property
     def cors_origins_list(self) -> List[str]:

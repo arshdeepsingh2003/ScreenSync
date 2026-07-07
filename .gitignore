@@ -4,6 +4,9 @@
 .env.*.local
 backend/.env
 frontend/.env
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Python
 venv/
@@ -32,13 +35,28 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Node
-node_modules/
-frontend/node_modules/
+# Python test, typing & linting caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+
+# Node
+node_modules/
+frontend/node_modules/
 
 # Production build outputs
 frontend/dist/
@@ -52,9 +70,12 @@ frontend/build/
 .project
 .pydevproject
 .settings/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 
 # OS-generated files
 Thumbs.db
 Desktop.ini
 .DS_Store
-
