@@ -16,6 +16,7 @@ from backend.routers import (
     apps_router,
     contents_router,
     screens_router,
+    session_router,
     settings_router,
     upload_router,
 )
@@ -47,6 +48,7 @@ app.include_router(auth_router.router, prefix="/api")
 app.include_router(apps_router.router, prefix="/api")
 app.include_router(contents_router.router, prefix="/api")
 app.include_router(screens_router.router, prefix="/api")
+app.include_router(session_router.router, prefix="/api")
 app.include_router(settings_router.router, prefix="/api")
 app.include_router(upload_router.router, prefix="/api")
 
