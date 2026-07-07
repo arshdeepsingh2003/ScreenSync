@@ -3,6 +3,7 @@ from backend.models.session import Session as SessionModel
 from backend.models.screen import Screen
 from backend.models.content import Content
 from backend.services.distribution_service import compute_assignment
+from backend.websocket.events import emit_batch_changed
 
 def get_session(db: DBSession) -> SessionModel:
     """Retrieve the singleton session row, creating it if it doesn't exist."""
@@ -63,6 +64,7 @@ def next(db: DBSession) -> dict:
     session_row.current_batch += 1
     db.commit()
     db.refresh(session_row)
+    emit_batch_changed(session_row.current_batch)
     return get_session_state(db)
 
 def previous(db: DBSession) -> dict:
@@ -71,6 +73,7 @@ def previous(db: DBSession) -> dict:
     session_row.current_batch = max(0, session_row.current_batch - 1)
     db.commit()
     db.refresh(session_row)
+    emit_batch_changed(session_row.current_batch)
     return get_session_state(db)
 
 # Aliases for backwards compatibility / alternate naming

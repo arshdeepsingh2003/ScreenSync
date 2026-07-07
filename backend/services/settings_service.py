@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from backend.models.settings import Settings
 from backend.schemas.settings_schema import SettingsUpdate
+from backend.websocket.events import emit_settings_updated
 
 def get_settings(db: Session) -> Settings:
     """
@@ -29,4 +30,9 @@ def update_settings(db: Session, settings_data: SettingsUpdate) -> Settings:
         
     db.commit()
     db.refresh(settings_row)
+    emit_settings_updated(
+        settings_row.default_screen_type,
+        settings_row.default_screen_url,
+        settings_row.default_screen_text
+    )
     return settings_row

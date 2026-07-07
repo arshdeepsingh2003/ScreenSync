@@ -3,6 +3,7 @@ from backend.models.app import App
 from backend.models.session import Session as SessionModel
 from backend.schemas.app_schema import AppCreate, AppUpdate
 from backend.services.exceptions import AppNotFoundError
+from backend.websocket.events import emit_app_activated
 
 def get_apps(db: Session):
     """Retrieve all Apps, ordered by name."""
@@ -39,8 +40,19 @@ def update_app(db: Session, app_id: int, app_data: AppUpdate) -> App:
 def delete_app(db: Session, app_id: int):
     """Delete an App. DB constraints handle cascade deletes."""
     app = get_app_by_id(db, app_id)
+    
+    # Check if this app is currently active
+    session_row = db.query(SessionModel).filter(SessionModel.id == 1).first()
+    was_active = False
+    if session_row and session_row.active_app_id == app_id:
+        was_active = True
+        
     db.delete(app)
     db.commit()
+    
+    if was_active:
+        emit_app_activated(None, 0)
+        
     return app_id
 
 def activate_app(db: Session, app_id: int) -> App:
@@ -69,4 +81,8 @@ def activate_app(db: Session, app_id: int) -> App:
         
     db.commit()
     db.refresh(target_app)
+    
+    # Broadcast activation event
+    emit_app_activated(target_app.id, 0)
+    
     return target_app

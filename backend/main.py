@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import asyncio
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -11,6 +12,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.config import settings
+from backend.websocket.socket_manager import socket_app, set_main_loop
 from backend.routers import (
     auth_router,
     apps_router,
@@ -51,6 +53,14 @@ app.include_router(screens_router.router, prefix="/api")
 app.include_router(session_router.router, prefix="/api")
 app.include_router(settings_router.router, prefix="/api")
 app.include_router(upload_router.router, prefix="/api")
+
+# Register startup event to capture event loop
+@app.on_event("startup")
+async def startup_event():
+    set_main_loop(asyncio.get_running_loop())
+
+# Mount Socket.IO ASGI app
+app.mount("/socket.io", socket_app)
 
 # Centralized Exception Handlers
 

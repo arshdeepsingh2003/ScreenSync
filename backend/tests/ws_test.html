@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ScreenSync WS Event Monitor</title>
+    <!-- Include Socket.IO Client library from CDN -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121214;
+            color: #e4e4e7;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #8b5cf6;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #a1a1aa;
+            margin-bottom: 24px;
+        }
+        .status-panel {
+            background-color: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+        .disconnected {
+            background-color: #7f1d1d;
+            color: #fca5a5;
+        }
+        .connected {
+            background-color: #064e3b;
+            color: #6ee7b7;
+        }
+        .log-container {
+            background-color: #09090b;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            padding: 16px;
+            height: 450px;
+            overflow-y: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.9rem;
+        }
+        .log-entry {
+            border-bottom: 1px solid #1f1f23;
+            padding: 10px 0;
+            line-height: 1.5;
+        }
+        .log-time {
+            color: #71717a;
+            margin-right: 8px;
+        }
+        .log-event {
+            font-weight: bold;
+            color: #60a5fa;
+            background-color: rgba(96, 165, 250, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+        .log-payload {
+            color: #34d399;
+        }
+        button {
+            background-color: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        button:hover {
+            background-color: #7c3aed;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>ScreenSync Event Monitor</h1>
+    <div class="subtitle">Open this page in a browser to monitor state-changing events broadcasted by the backend server.</div>
+
+    <div class="status-panel">
+        <div>Status: <span id="status-badge" class="badge disconnected">Disconnected</span></div>
+        <button id="reconnect-btn">Connect to localhost:8000</button>
+    </div>
+
+    <h3>Live Event Stream</h3>
+    <div id="log-container" class="log-container">
+        <div class="log-entry" style="color: #71717a;">Log stream initialized. Waiting for connection...</div>
+    </div>
+
+    <script>
+        const statusBadge = document.getElementById("status-badge");
+        const reconnectBtn = document.getElementById("reconnect-btn");
+        const logContainer = document.getElementById("log-container");
+
+        let socket = null;
+
+        function addLog(eventName, payload) {
+            const entry = document.createElement("div");
+            entry.className = "log-entry";
+            
+            const timeSpan = document.createElement("span");
+            timeSpan.className = "log-time";
+            timeSpan.textContent = new Date().toLocaleTimeString();
+            
+            const eventSpan = document.createElement("span");
+            eventSpan.className = "log-event";
+            eventSpan.textContent = eventName;
+            
+            const payloadSpan = document.createElement("span");
+            payloadSpan.className = "log-payload";
+            payloadSpan.textContent = JSON.stringify(payload);
+            
+            entry.appendChild(timeSpan);
+            entry.appendChild(eventSpan);
+            entry.appendChild(payloadSpan);
+            
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function connect() {
+            if (socket) {
+                socket.disconnect();
+            }
+
+            // Connects to server at localhost:8000
+            socket = io("http://localhost:8000", {
+                path: "/socket.io",
+                transports: ["websocket", "polling"]
+            });
+
+            socket.on("connect", () => {
+                statusBadge.textContent = "Connected";
+                statusBadge.className = "badge connected";
+                addLog("SYSTEM", "Connected to Socket.IO server at http://localhost:8000");
+            });
+
+            socket.on("disconnect", (reason) => {
+                statusBadge.textContent = "Disconnected";
+                statusBadge.className = "badge disconnected";
+                addLog("SYSTEM", `Disconnected: ${reason}`);
+            });
+
+            socket.on("connect_error", (error) => {
+                addLog("ERROR", `Failed to connect: ${error.message}`);
+            });
+
+            // Listen for ScreenSync events
+            socket.on("app:activated", (data) => {
+                addLog("app:activated", data);
+            });
+
+            socket.on("batch:changed", (data) => {
+                addLog("batch:changed", data);
+            });
+
+            socket.on("content:updated", (data) => {
+                addLog("content:updated", data);
+            });
+
+            socket.on("screen:updated", (data) => {
+                addLog("screen:updated", data);
+            });
+
+            socket.on("settings:updated", (data) => {
+                addLog("settings:updated", data);
+            });
+        }
+
+        reconnectBtn.addEventListener("click", connect);
+
+        // Initial connect attempt
+        connect();
+    </script>
+</body>
+</html>

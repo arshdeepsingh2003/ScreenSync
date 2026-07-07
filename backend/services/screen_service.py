@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from backend.models.screen import Screen
 from backend.schemas.screen_schema import ScreenCreate, ScreenUpdate
 from backend.services.exceptions import ScreenNotFoundError, ScreenNumberTakenError
+from backend.websocket.events import emit_screen_updated
 
 def get_screens(db: Session):
     """Retrieve all screens sorted by screen_number."""
@@ -28,6 +29,7 @@ def create_screen(db: Session, screen_data: ScreenCreate) -> Screen:
     db.add(screen)
     db.commit()
     db.refresh(screen)
+    emit_screen_updated()
     return screen
 
 def update_screen(db: Session, screen_id: int, screen_data: ScreenUpdate) -> Screen:
@@ -44,6 +46,7 @@ def update_screen(db: Session, screen_id: int, screen_data: ScreenUpdate) -> Scr
         
     db.commit()
     db.refresh(screen)
+    emit_screen_updated()
     return screen
 
 def delete_screen(db: Session, screen_id: int):
@@ -51,4 +54,5 @@ def delete_screen(db: Session, screen_id: int):
     screen = get_screen_by_id(db, screen_id)
     db.delete(screen)
     db.commit()
+    emit_screen_updated()
     return screen_id
