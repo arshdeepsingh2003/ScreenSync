@@ -47,13 +47,14 @@ def seed_db():
         admin_password = settings.ADMIN_PASSWORD
         
         existing_admin = db.query(Admin).filter(Admin.username == admin_username).first()
+        hashed_pw = pwd_context.hash(admin_password)
         if not existing_admin:
             print(f"Seeding admin user '{admin_username}'...")
-            hashed_pw = pwd_context.hash(admin_password)
             new_admin = Admin(username=admin_username, password_hash=hashed_pw)
             db.add(new_admin)
         else:
-            print(f"Admin user '{admin_username}' already exists.")
+            print(f"Admin user '{admin_username}' already exists. Updating password hash to match config...")
+            existing_admin.password_hash = hashed_pw
             
         db.commit()
         print("Database seeding completed successfully.")
