@@ -22,6 +22,13 @@ def test_phase3_logic():
     db.query(Screen).filter(Screen.screen_name.like("Phase 3 Test Screen%")).delete(synchronize_session=False)
     db.commit()
 
+    # Find pre-existing active screens and temporarily deactivate them
+    pre_existing_active_screens = db.query(Screen).filter(Screen.is_active == True).all()
+    pre_existing_active_ids = [s.id for s in pre_existing_active_screens]
+    for s in pre_existing_active_screens:
+        s.is_active = False
+    db.commit()
+
     try:
         # Get authentication headers
         response = client.post("/api/auth/login", json={"username": settings.ADMIN_USERNAME, "password": settings.ADMIN_PASSWORD})
@@ -209,6 +216,17 @@ def test_phase3_logic():
         traceback.print_exc()
         sys.exit(1)
     finally:
+        # Restore pre-existing active screens
+        restore_db = SessionLocal()
+        try:
+            for sid in pre_existing_active_ids:
+                restore_db.query(Screen).filter(Screen.id == sid).update({Screen.is_active: True})
+            restore_db.commit()
+            print("Restored pre-existing screens.")
+        except Exception as restore_err:
+            print(f"Failed to restore pre-existing screens: {restore_err}")
+        finally:
+            restore_db.close()
         db.close()
 
 if __name__ == "__main__":

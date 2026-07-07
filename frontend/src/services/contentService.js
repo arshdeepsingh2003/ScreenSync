@@ -27,6 +27,15 @@ export const contentService = {
     });
     return response.data;
   },
+
+  async importPdf(appId, formData) {
+    const response = await api.post(`/api/apps/${appId}/contents/import_pdf`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
 };
 
 export default contentService;

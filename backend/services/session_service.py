@@ -15,6 +15,40 @@ def get_session(db: DBSession) -> SessionModel:
         db.refresh(session_row)
     return session_row
 
+def clamp_session_batch(db: DBSession):
+    """
+    Ensure current_batch does not exceed the maximum useful batch index
+    based on the number of active screens and active app slides.
+    If it exceeds, clamp it to the maximum useful index and emit batch:changed.
+    """
+    session_row = db.query(SessionModel).filter(SessionModel.id == 1).first()
+    if not session_row or session_row.active_app_id is None:
+        return
+        
+    # Get active screens count
+    active_screens_count = db.query(Screen).filter(Screen.is_active == True).count()
+    if active_screens_count == 0:
+        if session_row.current_batch != 0:
+            session_row.current_batch = 0
+            db.commit()
+            emit_batch_changed(0)
+        return
+        
+    # Get active app slides count
+    slides_count = db.query(Content).filter(Content.app_id == session_row.active_app_id).count()
+    if slides_count == 0:
+        if session_row.current_batch != 0:
+            session_row.current_batch = 0
+            db.commit()
+            emit_batch_changed(0)
+        return
+        
+    max_batch = (slides_count - 1) // active_screens_count
+    if session_row.current_batch > max_batch:
+        session_row.current_batch = max_batch
+        db.commit()
+        emit_batch_changed(max_batch)
+
 def get_session_state(db: DBSession) -> dict:
     """
     Get the full session state including:
@@ -51,10 +85,13 @@ def get_session_state(db: DBSession) -> dict:
         else:
             assignment[str(screen_id)] = None
             
+    # Fetch all screens (active and inactive) to return in session state
+    all_screens = db.query(Screen).order_by(Screen.screen_number).all()
+            
     return {
         "active_app_id": session_row.active_app_id,
         "current_batch": session_row.current_batch,
-        "screens": active_screens,
+        "screens": all_screens,
         "assignment": assignment
     }
 

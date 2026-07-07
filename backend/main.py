@@ -45,6 +45,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Prevent API caching across all browsers and TV clients
+@app.middleware("http")
+async def add_no_cache_headers(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/api"):
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
 # Register REST Routers under /api prefix
 app.include_router(auth_router.router, prefix="/api")
 app.include_router(apps_router.router, prefix="/api")

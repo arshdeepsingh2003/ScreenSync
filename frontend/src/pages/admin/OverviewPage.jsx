@@ -1,9 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import useSession from '../../hooks/useSession';
+import useApps from '../../hooks/useApps';
 
 export default function OverviewPage() {
   const { screens, activeAppId } = useSession();
+  const { apps, loading: appsLoading } = useApps();
+
+  const activeApp = apps.find((a) => a.id === activeAppId);
+  const activeAppName = activeApp ? activeApp.name : 'None';
 
   return (
     <div className="space-y-8 font-sans">
@@ -17,7 +22,9 @@ export default function OverviewPage() {
         <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between h-48">
           <div>
             <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Apps Management</span>
-            <h4 className="text-3xl font-extrabold text-white mt-2">Active: {activeAppId || 'None'}</h4>
+            <h4 className="text-3xl font-extrabold text-white mt-2">
+              Active: {appsLoading ? 'Loading...' : activeAppName}
+            </h4>
             <p className="text-slate-500 text-xs mt-1">Configure slideshows and playlists.</p>
           </div>
           <Link

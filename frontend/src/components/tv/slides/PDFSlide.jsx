@@ -1,11 +1,20 @@
 import React from 'react';
 
 export default function PDFSlide({ slide }) {
+  let url = slide.file_url;
+  if (url) {
+    if (url.includes('#')) {
+      url = `${url}&toolbar=0&navpanes=0`;
+    } else {
+      url = `${url}#toolbar=0&navpanes=0`;
+    }
+  }
+
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-slate-950 text-white p-6">
-      {slide.file_url ? (
+      {url ? (
         <iframe
-          src={`${slide.file_url}#toolbar=0&navpanes=0`}
+          src={url}
           title={slide.title || 'PDF Slide'}
           className="w-full h-full border-0 rounded-lg shadow-2xl"
         />

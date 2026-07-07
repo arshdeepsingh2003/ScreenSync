@@ -9,7 +9,22 @@ export function SocketProvider({ children }) {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:8000';
+    const getWsUrl = () => {
+      const envUrl = import.meta.env.VITE_WS_URL || 'http://localhost:8000';
+      try {
+        const urlObj = new URL(envUrl);
+        if (urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1') {
+          if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            urlObj.hostname = window.location.hostname;
+          }
+        }
+        return urlObj.toString().replace(/\/$/, '');
+      } catch (e) {
+        return envUrl;
+      }
+    };
+
+    const wsUrl = getWsUrl();
     
     // Connect socket
     const socketInstance = io(wsUrl, {

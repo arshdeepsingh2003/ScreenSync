@@ -5,6 +5,7 @@ class SessionScreenResponse(BaseModel):
     id: int
     screen_number: int
     screen_name: Optional[str] = None
+    is_active: bool
 
     class Config:
         from_attributes = True

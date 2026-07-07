@@ -24,8 +24,10 @@ export function SessionProvider({ children }) {
     activeAppIdRef.current = activeAppId;
   }, [activeAppId]);
 
-  const refreshSession = useCallback(async () => {
-    setLoading(true);
+  const refreshSession = useCallback(async (silent = false) => {
+    if (!silent) {
+      setLoading(true);
+    }
     setError(null);
     try {
       // 1. Fetch Session State
@@ -49,7 +51,9 @@ export function SessionProvider({ children }) {
       console.error('Failed to sync session state:', err);
       setError(err.message || 'Failed to sync with server');
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   }, []);
 
@@ -64,12 +68,12 @@ export function SessionProvider({ children }) {
 
     const handleConnect = () => {
       console.log('Socket reconnected, forcing full resync...');
-      refreshSession();
+      refreshSession(true);
     };
 
     const handleAppActivated = (data) => {
       console.log('[WS Event] app:activated ->', data);
-      refreshSession();
+      refreshSession(true);
     };
 
     const handleBatchChanged = (data) => {
@@ -78,19 +82,20 @@ export function SessionProvider({ children }) {
       if (data && typeof data.current_batch === 'number') {
         setCurrentBatch(data.current_batch);
       }
+      refreshSession(true);
     };
 
     const handleContentUpdated = (data) => {
       console.log('[WS Event] content:updated ->', data);
       // Check if update applies to the currently active app
       if (data && data.app_id === activeAppIdRef.current) {
-        refreshSession();
+        refreshSession(true);
       }
     };
 
     const handleScreenUpdated = () => {
       console.log('[WS Event] screen:updated');
-      refreshSession();
+      refreshSession(true);
     };
 
     const handleSettingsUpdated = (data) => {
@@ -98,7 +103,7 @@ export function SessionProvider({ children }) {
       if (data) {
         setSettings(data);
       } else {
-        refreshSession();
+        refreshSession(true);
       }
     };
 

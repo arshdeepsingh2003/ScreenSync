@@ -12,7 +12,7 @@ import Spinner from '../../components/common/Spinner';
 
 export default function ScreensPage() {
   const { screens, loading, error, refetch } = useScreens();
-  const socket = useSocket();
+  const { socket } = useSocket();
 
   // Modal state
   const [formOpen, setFormOpen] = useState(false);
@@ -83,10 +83,15 @@ export default function ScreensPage() {
 
   const handleDelete = async () => {
     if (!deleteScreen) return;
-    await screenService.deleteScreen(deleteScreen.id);
-    toast.success(`"${deleteScreen.screen_name}" removed`);
-    setDeleteScreen(null);
-    refetch();
+    try {
+      await screenService.deleteScreen(deleteScreen.id);
+      toast.success(`"${deleteScreen.screen_name}" removed`);
+      setDeleteScreen(null);
+      refetch();
+    } catch (err) {
+      console.error('Failed to delete screen:', err);
+      toast.error(err.response?.data?.detail || 'Failed to remove screen');
+    }
   };
 
   if (loading) {

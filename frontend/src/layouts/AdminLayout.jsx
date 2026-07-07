@@ -11,6 +11,11 @@ export default function AdminLayout() {
     navigate('/admin/login');
   };
 
+  const handleGoToPublic = () => {
+    logout();
+    navigate('/');
+  };
+
   const linkClass = ({ isActive }) =>
     `flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all ${
       isActive
@@ -67,9 +72,20 @@ export default function AdminLayout() {
         {/* Topbar */}
         <header className="h-16 bg-slate-900/40 border-b border-slate-800 flex items-center justify-between px-8">
           <h2 className="text-lg font-semibold text-white">Admin Management</h2>
-          <div className="flex items-center space-x-3">
-            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
-            <span className="text-sm text-slate-400">Authenticated Admin</span>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={handleGoToPublic}
+              className="flex items-center justify-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 rounded-xl text-xs font-semibold cursor-pointer transition-all shadow-md hover:shadow-lg"
+            >
+              <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+              </svg>
+              <span>Public Dashboard</span>
+            </button>
+            <div className="flex items-center space-x-2">
+              <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+              <span className="text-sm text-slate-400">Authenticated Admin</span>
+            </div>
           </div>
         </header>
 

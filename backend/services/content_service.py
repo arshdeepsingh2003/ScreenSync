@@ -5,6 +5,7 @@ from backend.schemas.content_schema import ContentCreate, ContentUpdate
 from backend.services.exceptions import ContentNotFoundError, AppNotFoundError
 from backend.services.app_service import get_app_by_id
 from backend.websocket.events import emit_content_updated
+from backend.services.session_service import clamp_session_batch
 
 def get_contents_by_app(db: Session, app_id: int):
     """Retrieve all contents/slides for a specific App, sorted by display_order."""
@@ -64,6 +65,7 @@ def delete_content(db: Session, content_id: int):
     app_id = content.app_id
     db.delete(content)
     db.commit()
+    clamp_session_batch(db)
     emit_content_updated(app_id)
     return content_id
 
@@ -87,4 +89,49 @@ def reorder_contents(db: Session, app_id: int, ordered_ids: list[int]) -> list[C
     emit_content_updated(app_id)
     
     # Return updated list
+    return db.query(Content).filter(Content.app_id == app_id).order_by(Content.display_order).all()
+
+def import_pdf_slides(db: Session, app_id: int, filename: str, public_url: str, num_pages: int) -> list[Content]:
+    """
+    Import N pages of a PDF document as separate slides.
+    Appends them sequentially starting from the end of the playlist.
+    """
+    # Ensure app exists
+    get_app_by_id(db, app_id)
+    
+    # Get current max display order
+    max_order = db.query(func.max(Content.display_order)).filter(Content.app_id == app_id).scalar()
+    start_order = (max_order + 1) if max_order is not None else 0
+    
+    created_slides = []
+    # Remove file extension from filename for cleaner slide titles
+    base_name = filename.rsplit('.', 1)[0] if '.' in filename else filename
+    
+    for i in range(1, num_pages + 1):
+        content = Content(
+            app_id=app_id,
+            title=f"{base_name} - Page {i}",
+            type="pdf",
+            file_url=f"{public_url}#page={i}",
+            text_content=None,
+            display_order=start_order + i - 1,
+            duration=10  # Default 10 seconds
+        )
+        db.add(content)
+        created_slides.append(content)
+        
+    db.commit()
+    
+    # Force refreshing references
+    for s in created_slides:
+        db.refresh(s)
+        
+    # Recalculate session paging constraints if needed
+    from backend.services.session_service import clamp_session_batch
+    clamp_session_batch(db)
+    
+    # Emit events
+    emit_content_updated(app_id)
+    
+    # Return updated slides list
     return db.query(Content).filter(Content.app_id == app_id).order_by(Content.display_order).all()

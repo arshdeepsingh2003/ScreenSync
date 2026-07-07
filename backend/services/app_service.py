@@ -51,6 +51,9 @@ def delete_app(db: Session, app_id: int):
     db.commit()
     
     if was_active:
+        if session_row:
+            session_row.current_batch = 0
+            db.commit()
         emit_app_activated(None, 0)
         
     return app_id

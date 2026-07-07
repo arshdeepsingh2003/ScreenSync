@@ -15,7 +15,7 @@ import { useEffect } from 'react';
 export default function AppsPage() {
   const { apps, loading, error, refetch } = useApps();
   const { activeAppId } = useSession();
-  const socket = useSocket();
+  const { socket } = useSocket();
 
   // Modal state
   const [formOpen, setFormOpen] = useState(false);

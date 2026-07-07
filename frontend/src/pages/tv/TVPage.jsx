@@ -82,7 +82,7 @@ export default function TVPage() {
   if (assignedSlide) {
     const Renderer = CONTENT_TYPE_REGISTRY[assignedSlide.type];
     if (Renderer) {
-      slideView = <Renderer slide={assignedSlide} />;
+      slideView = <Renderer key={assignedSlide.id} slide={assignedSlide} />;
     }
   }
 

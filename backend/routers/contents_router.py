@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List
 from backend.db.database import get_db
@@ -54,3 +54,71 @@ def reorder_contents(
 ):
     """Reorder multiple slides for an App using drag-and-drop (Admin)."""
     return content_service.reorder_contents(db, app_id, reorder_data.ordered_ids)
+
+@router.post("/apps/{app_id}/contents/import_pdf", response_model=List[ContentResponse], status_code=status.HTTP_201_CREATED)
+async def import_pdf(
+    app_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_admin = Depends(get_current_admin)
+):
+    """
+    Import a PDF document and automatically split it into individual slides.
+    Admins only.
+    """
+    # 1. Validate PDF file type
+    if file.content_type != "application/pdf" and not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid file format. Only PDF files are supported."
+        )
+
+    try:
+        # 2. Read file bytes
+        file_bytes = await file.read()
+        
+        # 3. Count PDF pages using pypdf
+        import io
+        from pypdf import PdfReader
+        
+        try:
+            reader = PdfReader(io.BytesIO(file_bytes))
+            num_pages = len(reader.pages)
+        except Exception as pdf_err:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Failed to read PDF document: {str(pdf_err)}"
+            )
+
+        if num_pages == 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="The uploaded PDF document contains no pages."
+            )
+
+        # 4. Upload file to Supabase Storage in slide-media bucket
+        from backend.storage.supabase_storage import upload_file
+        
+        public_url = upload_file(
+            bucket_name="slide-media",
+            file_bytes=file_bytes,
+            filename=file.filename,
+            mime_type="application/pdf"
+        )
+        
+        # 5. Create slide content records sequentially
+        return content_service.import_pdf_slides(
+            db=db,
+            app_id=app_id,
+            filename=file.filename,
+            public_url=public_url,
+            num_pages=num_pages
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to import PDF document: {str(e)}"
+        )

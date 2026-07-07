@@ -6,13 +6,13 @@ import authService from '../services/authService';
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem('token') || null);
+  const [token, setToken] = useState(() => sessionStorage.getItem('token') || null);
 
   const login = async (username, password) => {
     try {
       const data = await authService.login(username, password);
       const accessToken = data.access_token;
-      localStorage.setItem('token', accessToken);
+      sessionStorage.setItem('token', accessToken);
       setToken(accessToken);
       return data;
     } catch (error) {
@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     setToken(null);
   };
 
@@ -36,7 +36,7 @@ export function AuthProvider({ children }) {
 }
 
 export function RequireAuth({ children }) {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   const isAuthenticated = !!token;
 
   if (!isAuthenticated) {

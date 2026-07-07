@@ -10,3 +10,4 @@ python-multipart
 supabase
 pydantic-settings
 alembic
+pypdf
