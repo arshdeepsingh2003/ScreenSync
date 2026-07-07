@@ -7,7 +7,7 @@ import { CONTENT_TYPE_REGISTRY } from '../../utils/contentTypeRegistry';
 
 export default function TVPage() {
   const { screenId } = useParams();
-  const { loading, error, settings, isConnected } = useSession();
+  const { loading, error, settings, isConnected, screens } = useSession();
   const assignedSlide = useSlideAssignment(screenId);
 
   if (loading) {
@@ -28,6 +28,51 @@ export default function TVPage() {
           <h2 className="text-2xl font-bold mb-2">Connection Error</h2>
           <p className="text-slate-400 text-sm">{error}</p>
         </div>
+      </div>
+    );
+  }
+
+  // 1. Resolve screen identity and validate existence
+  const screenIdNum = Number(screenId);
+  const currentScreen = screens?.find(
+    (s) => s.id === screenIdNum || s.screen_number === screenIdNum
+  );
+
+  if (!currentScreen) {
+    return (
+      <div className="w-full h-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white p-12 text-center font-sans">
+        <div className="h-16 w-16 rounded-xl bg-red-900/30 border border-red-500/50 flex items-center justify-center font-bold text-2xl text-red-500 shadow-2xl mb-6 animate-pulse">
+          ⚠️
+        </div>
+        <h1 className="text-4xl font-extrabold tracking-tight text-red-500 mb-4">
+          Screen Not Registered
+        </h1>
+        <p className="text-lg text-slate-400 max-w-lg mb-6 leading-relaxed">
+          Screen with ID or number <span className="font-semibold text-slate-200">"{screenId}"</span> is not registered in the ScreenSync system.
+        </p>
+        <span className="text-xs uppercase tracking-widest text-slate-600 font-extrabold bg-slate-900 px-4 py-2 rounded-full border border-slate-800">
+          Action Required: Register this screen in the Admin Panel
+        </span>
+      </div>
+    );
+  }
+
+  // 2. Validate screen active status
+  if (!currentScreen.is_active) {
+    return (
+      <div className="w-full h-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white p-12 text-center font-sans">
+        <div className="h-16 w-16 rounded-xl bg-amber-900/30 border border-amber-500/50 flex items-center justify-center font-bold text-2xl text-amber-500 shadow-2xl mb-6">
+          🔒
+        </div>
+        <h1 className="text-4xl font-extrabold tracking-tight text-amber-500 mb-4">
+          Screen Inactive
+        </h1>
+        <p className="text-lg text-slate-400 max-w-lg mb-6 leading-relaxed">
+          Screen <span className="font-semibold text-slate-200">"{currentScreen.screen_name}"</span> (No. {currentScreen.screen_number}) is currently set to inactive.
+        </p>
+        <span className="text-xs uppercase tracking-widest text-slate-600 font-extrabold bg-slate-900 px-4 py-2 rounded-full border border-slate-800">
+          Action Required: Activate this screen in the Admin Panel to resume broadcast
+        </span>
       </div>
     );
   }
@@ -61,3 +106,4 @@ export default function TVPage() {
     </div>
   );
 }
+
