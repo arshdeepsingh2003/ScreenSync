@@ -12,7 +12,7 @@ export default function TVPage() {
 
   if (loading) {
     return (
-      <div className="w-full h-full min-h-screen flex items-center justify-center bg-black text-slate-500 font-sans">
+      <div className="w-full h-full overflow-hidden flex items-center justify-center bg-black text-slate-500 font-sans">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin h-8 w-8 border-4 border-slate-700 border-t-transparent rounded-full"></div>
           <span className="text-sm tracking-wider uppercase font-medium">Booting TV Client...</span>
@@ -23,7 +23,7 @@ export default function TVPage() {
 
   if (error) {
     return (
-      <div className="w-full h-full min-h-screen flex items-center justify-center bg-black text-red-500 font-sans p-6 text-center">
+      <div className="w-full h-full overflow-hidden flex items-center justify-center bg-black text-red-500 font-sans p-6 text-center">
         <div>
           <h2 className="text-2xl font-bold mb-2">Connection Error</h2>
           <p className="text-slate-400 text-sm">{error}</p>
@@ -40,7 +40,7 @@ export default function TVPage() {
 
   if (!currentScreen) {
     return (
-      <div className="w-full h-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white p-12 text-center font-sans">
+      <div className="w-full h-full overflow-hidden flex flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white p-12 text-center font-sans">
         <div className="h-16 w-16 rounded-xl bg-red-900/30 border border-red-500/50 flex items-center justify-center font-bold text-2xl text-red-500 shadow-2xl mb-6 animate-pulse">
           ⚠️
         </div>
@@ -60,7 +60,7 @@ export default function TVPage() {
   // 2. Validate screen active status
   if (!currentScreen.is_active) {
     return (
-      <div className="w-full h-full min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white p-12 text-center font-sans">
+      <div className="w-full h-full overflow-hidden flex flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white p-12 text-center font-sans">
         <div className="h-16 w-16 rounded-xl bg-amber-900/30 border border-amber-500/50 flex items-center justify-center font-bold text-2xl text-amber-500 shadow-2xl mb-6">
           🔒
         </div>
@@ -92,7 +92,7 @@ export default function TVPage() {
   }
 
   return (
-    <div className="w-full h-full min-h-screen relative bg-black">
+    <div className="w-full h-full relative bg-black overflow-hidden">
       {/* Slide Content Viewport */}
       {slideView}
 

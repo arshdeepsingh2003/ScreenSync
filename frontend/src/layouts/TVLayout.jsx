@@ -26,7 +26,7 @@ export default function TVLayout() {
   return (
     <div
       onClick={handleContainerClick}
-      className="w-full h-full min-h-screen bg-black text-white overflow-hidden select-none cursor-none relative"
+      className="w-screen h-screen bg-black text-white overflow-hidden select-none cursor-none relative"
     >
       <Outlet />
 

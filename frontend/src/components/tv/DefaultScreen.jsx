@@ -56,16 +56,17 @@ export default function DefaultScreen({ settings }) {
 
     case 'html':
       return (
-        <div className="w-full h-full bg-slate-950">
+        <div className="w-full h-full bg-slate-950 select-none pointer-events-none overflow-hidden">
           {default_screen_url ? (
             <iframe
               src={default_screen_url}
               title="Default Screen HTML"
-              className="w-full h-full border-0"
+              className="w-full h-full border-0 pointer-events-none"
+              scrolling="no"
             />
           ) : default_screen_text ? (
             <div
-              className="w-full h-full p-8 overflow-auto"
+              className="w-full h-full p-8 overflow-hidden"
               dangerouslySetInnerHTML={{ __html: default_screen_text }}
             />
           ) : (

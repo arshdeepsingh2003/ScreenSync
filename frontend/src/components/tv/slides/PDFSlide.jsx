@@ -4,9 +4,9 @@ export default function PDFSlide({ slide }) {
   let url = slide.file_url;
   if (url) {
     if (url.includes('#')) {
-      url = `${url}&toolbar=0&navpanes=0`;
+      url = `${url}&toolbar=0&navpanes=0&scrollbar=0`;
     } else {
-      url = `${url}#toolbar=0&navpanes=0`;
+      url = `${url}#toolbar=0&navpanes=0&scrollbar=0`;
     }
   }
 
@@ -16,7 +16,8 @@ export default function PDFSlide({ slide }) {
         <iframe
           src={url}
           title={slide.title || 'PDF Slide'}
-          className="w-full h-full border-0 rounded-lg shadow-2xl"
+          className="w-full h-full border-0 rounded-lg shadow-2xl pointer-events-none"
+          scrolling="no"
         />
       ) : (
         <span className="text-xl text-slate-500">PDF url missing</span>
