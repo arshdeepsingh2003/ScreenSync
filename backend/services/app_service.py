@@ -3,7 +3,7 @@ from backend.models.app import App
 from backend.models.session import Session as SessionModel
 from backend.schemas.app_schema import AppCreate, AppUpdate
 from backend.services.exceptions import AppNotFoundError
-from backend.websocket.events import emit_app_activated
+from backend.websocket.events import emit_app_activated, emit_content_updated
 
 def get_apps(db: Session):
     """Retrieve all Apps, ordered by name."""
@@ -21,7 +21,10 @@ def create_app(db: Session, app_data: AppCreate) -> App:
     app = App(
         name=app_data.name,
         icon_url=app_data.icon_url,
-        is_active=False
+        is_active=False,
+        default_screen_type=app_data.default_screen_type,
+        default_screen_url=app_data.default_screen_url,
+        default_screen_text=app_data.default_screen_text
     )
     db.add(app)
     db.commit()
@@ -33,8 +36,12 @@ def update_app(db: Session, app_id: int, app_data: AppUpdate) -> App:
     app = get_app_by_id(db, app_id)
     app.name = app_data.name
     app.icon_url = app_data.icon_url
+    app.default_screen_type = app_data.default_screen_type
+    app.default_screen_url = app_data.default_screen_url
+    app.default_screen_text = app_data.default_screen_text
     db.commit()
     db.refresh(app)
+    emit_content_updated(app.id)
     return app
 
 def delete_app(db: Session, app_id: int):

@@ -64,7 +64,10 @@ def get_session_state(db: DBSession) -> dict:
     
     # Query contents for the active app if any
     slides = []
+    active_app = None
     if session_row.active_app_id is not None:
+        from backend.models.app import App
+        active_app = db.query(App).filter(App.id == session_row.active_app_id).first()
         slides = db.query(Content).filter(Content.app_id == session_row.active_app_id).order_by(Content.display_order).all()
         
     # Compute slide assignment
@@ -90,6 +93,7 @@ def get_session_state(db: DBSession) -> dict:
             
     return {
         "active_app_id": session_row.active_app_id,
+        "active_app": active_app,
         "current_batch": session_row.current_batch,
         "screens": all_screens,
         "assignment": assignment

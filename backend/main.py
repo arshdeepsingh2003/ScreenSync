@@ -68,6 +68,11 @@ app.include_router(upload_router.router, prefix="/api")
 @app.on_event("startup")
 async def startup_event():
     set_main_loop(asyncio.get_running_loop())
+    try:
+        from backend.db.add_app_columns import add_columns
+        add_columns()
+    except Exception as e:
+        logger.error(f"Failed to run app default settings migration on startup: {e}")
 
 # Mount Socket.IO ASGI app
 app.mount("/socket.io", socket_app)

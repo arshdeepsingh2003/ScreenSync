@@ -2,8 +2,9 @@ import socketio
 from typing import Any
 import asyncio
 
-# Create the Socket.IO server with support for CORS from any origin
-sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins="*")
+# Create the Socket.IO server. Set cors_allowed_origins to an empty list
+# to delegate CORS handling to FastAPI's CORSMiddleware, avoiding duplicate CORS headers in the browser.
+sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins=[])
 
 # Wrap the Socket.IO server in an ASGI application.
 # Set socketio_path="" so that it acts as the root handler when mounted on a specific prefix in FastAPI.

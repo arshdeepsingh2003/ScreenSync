@@ -1,10 +1,13 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Literal
 from pydantic import BaseModel, Field
 
 class AppBase(BaseModel):
     name: str = Field(..., max_length=150)
     icon_url: Optional[str] = None
+    default_screen_type: Optional[Literal["image", "video", "html", "text"]] = None
+    default_screen_url: Optional[str] = None
+    default_screen_text: Optional[str] = None
 
 class AppCreate(AppBase):
     pass

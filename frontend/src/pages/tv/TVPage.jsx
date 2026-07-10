@@ -7,7 +7,7 @@ import { CONTENT_TYPE_REGISTRY } from '../../utils/contentTypeRegistry';
 
 export default function TVPage() {
   const { screenId } = useParams();
-  const { loading, error, settings, isConnected, screens } = useSession();
+  const { loading, error, settings, isConnected, screens, activeApp } = useSession();
   const assignedSlide = useSlideAssignment(screenId);
 
   if (loading) {
@@ -88,7 +88,15 @@ export default function TVPage() {
 
   // Fallback to default screen if no assignment or renderer
   if (!slideView) {
-    slideView = <DefaultScreen settings={settings} />;
+    let fallbackSettings = settings;
+    if (activeApp && activeApp.default_screen_type) {
+      fallbackSettings = {
+        default_screen_type: activeApp.default_screen_type,
+        default_screen_url: activeApp.default_screen_url,
+        default_screen_text: activeApp.default_screen_text,
+      };
+    }
+    slideView = <DefaultScreen settings={fallbackSettings} />;
   }
 
   return (

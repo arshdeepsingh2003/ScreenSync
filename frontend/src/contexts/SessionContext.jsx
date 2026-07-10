@@ -11,6 +11,7 @@ export function SessionProvider({ children }) {
   const { socket, isConnected } = useSocket();
 
   const [activeAppId, setActiveAppId] = useState(null);
+  const [activeApp, setActiveApp] = useState(null);
   const [currentBatch, setCurrentBatch] = useState(0);
   const [screens, setScreens] = useState([]);
   const [slides, setSlides] = useState([]);
@@ -33,6 +34,7 @@ export function SessionProvider({ children }) {
       // 1. Fetch Session State
       const sessionState = await sessionService.getSessionState();
       setActiveAppId(sessionState.active_app_id);
+      setActiveApp(sessionState.active_app || null);
       setCurrentBatch(sessionState.current_batch);
       setScreens(sessionState.screens || []);
 
@@ -130,6 +132,7 @@ export function SessionProvider({ children }) {
     <SessionContext.Provider
       value={{
         activeAppId,
+        activeApp,
         currentBatch,
         screens,
         slides,

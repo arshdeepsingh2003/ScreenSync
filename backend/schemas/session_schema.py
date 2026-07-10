@@ -23,8 +23,21 @@ class SessionAssignmentContent(BaseModel):
         from_attributes = True
         orm_mode = True
 
+class SessionAppResponse(BaseModel):
+    id: int
+    name: str
+    icon_url: Optional[str] = None
+    default_screen_type: Optional[str] = None
+    default_screen_url: Optional[str] = None
+    default_screen_text: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+        orm_mode = True
+
 class SessionStateResponse(BaseModel):
     active_app_id: Optional[int] = None
+    active_app: Optional[SessionAppResponse] = None
     current_batch: int
     screens: List[SessionScreenResponse]
     assignment: Dict[str, Optional[SessionAssignmentContent]]
