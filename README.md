@@ -76,14 +76,21 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD=AdminPassword123
 ```
 
-#### Run Database Migrations & Start Server
+#### Seed the Database
+Before starting the server, you need to seed the database. This initializes the global session and settings state singleton rows, and creates the bootstrap admin user using credentials defined in your `.env`:
+
+```bash
+python db/seed.py
+```
+
+#### Start the Backend Server
 ```bash
 # Start FastAPI application
 python main.py
 # Or run with uvicorn directly:
 uvicorn main:app --reload
 ```
-The backend server will run on [http://localhost:8000](http://localhost:8000) and automatically run table migrations on startup.
+The backend server will run on [http://localhost:8000](http://localhost:8000) and automatically run table structure migrations on startup.
 
 ---
 
@@ -147,3 +154,15 @@ To verify backend integrations and API schemas, run the test script:
 cd backend
 python tests/test_phase2.py
 ```
+
+---
+
+## 📖 Additional Documentation
+
+For deep architectural details and system flow specifications, refer to the documents in the [Docs](file:///c:/Users/Arshdeep/Desktop/ScreenSync/Docs) directory:
+- [Product Overview](file:///c:/Users/Arshdeep/Desktop/ScreenSync/Docs/01-product-overview.md)
+- [System Architecture](file:///c:/Users/Arshdeep/Desktop/ScreenSync/Docs/02-system-architecture.md)
+- [Frontend Design](file:///c:/Users/Arshdeep/Desktop/ScreenSync/Docs/03-frontend-design.md)
+- [Backend Design](file:///c:/Users/Arshdeep/Desktop/ScreenSync/Docs/04-backend-design.md)
+- [Database Schema](file:///c:/Users/Arshdeep/Desktop/ScreenSync/Docs/05-database-schema.md)
+- [API Design Specification](file:///c:/Users/Arshdeep/Desktop/ScreenSync/Docs/06-api-design.md)
